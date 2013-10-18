@@ -1,0 +1,58 @@
+#!/usr/bin/perl
+
+use Cwd;
+
+&parseDirectory(".", "http://xnet.kp.org/innovationcenter", "");
+
+sub parseDirectory {
+
+  print "Running parseDirectory on $_[0]\n\n";
+  
+  opendir(DIR, $_[0]) || die ("Cannot opendir $_[0]\n");
+  my @files = readdir(DIR);
+  closedir(DIR);
+
+  foreach my $file (@files) {
+    next if ($file eq "."  or $file eq "..");
+
+    if($file =~ /.html/) {
+  
+      print "HTML file $file.\n";
+      htmlReWrite($file,$_[1],$_[2]);
+  
+    } elsif ($file =~ /.js/) {
+      
+      print "Java script $_.\n";
+      htmlReWrite($file,$source,$dest);
+    
+    } elsif (-d $file) {
+    
+      print "Entering directory $file\n";
+      &parseDirectory($file);
+    
+    } else {
+  
+      print "Skipping $file\n";
+    
+    }
+
+  }
+  
+  closedir(DIR);
+  return;
+ 
+}
+
+sub htmlReWrite {
+
+  open (FILE, $_[0]) || die ("Cannot open input file $_[0].\n");
+  open (NEWFILE, ">" . $_[0] . ".new") || die ("Cannot open output file $_[0].new.\n");
+
+  while (<FILE>) {
+
+    chop;
+    s/$_[1]/$_[2]/g;
+    print NEWFILE $_ . "\n";
+
+  }
+}
